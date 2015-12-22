@@ -58,7 +58,7 @@ module.exports.run = function(){
         });
 
         archive.pipe(zipFile);
-        archive.directory(platformWwwDir)
+        archive.directory(platformWwwDir, '.');
         archive.finalize();
 
         return Q.resolve();
