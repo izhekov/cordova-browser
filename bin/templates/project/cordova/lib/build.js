@@ -19,12 +19,12 @@
  * under the License.
  */
  
-var path    = require('path'),
-    fs      = require('fs'),
-    shjs    = require('shelljs'),
-    zip     = require('adm-zip'),
-    Q       = require('q'),
-    clean   = require('./clean'),
+var path       = require('path'),
+    fs         = require('fs'),
+    shjs       = require('shelljs'),
+    archiver   = require('archiver'),
+    Q          = require('q'),
+    clean      = require('./clean'),
     check_reqs = require('./check_reqs'),
     platformWwwDir          = path.join('platforms', 'browser', 'www'),
     platformBuildDir        = path.join('platforms', 'browser', 'build'),
@@ -50,12 +50,18 @@ module.exports.run = function(){
         }
 
         // add the project to a zipfile
-        var zipFile = zip();
-        zipFile.addLocalFolder(platformWwwDir, '.');
-        zipFile.writeZip(packageFile);
+        var archive = archiver('zip');
+        var zipFile = fs.createWriteStream(packageFile);
+
+        archive.on('error', function(err) {
+            throw err;
+        });
+
+        archive.pipe(zipFile);
+        archive.directory(platformWwwDir)
+        archive.finalize();
 
         return Q.resolve();
-
     });
 };
 
